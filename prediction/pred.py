@@ -1,17 +1,25 @@
 import tensorflow as tf
-from keras_preprocessing.image import img_to_array
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.applications.resnet50 import preprocess_input, decode_predictions
+from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.preprocessing import image
 
 # Helper libraries
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2
+import os
+import glob
 
 
 print(tf.__version__)
 
-model = tf.keras.models.load_model('../model/my_model.h5', custom_objects=None, compile=True, options=None)
+model = tf.keras.models.load_model(
+    '../model/my_model.h5',
+    custom_objects=None,
+    compile=True,
+    options=None)
 
 train_datagen = ImageDataGenerator(
     rescale=1. / 255,
@@ -27,42 +35,52 @@ train_datagen = ImageDataGenerator(
     validation_split=0.2
 )
 
-img_size = (224, 224)
-random_seed = 123
+img_size = (150, 150)
 
 training_set = train_datagen.flow_from_directory(
     '../dataset',
-    color_mode='rgb',
     target_size=img_size,
-    batch_size=32,
     class_mode='binary',
-    seed=random_seed,
     subset='training'
 )
 
 testing_set = train_datagen.flow_from_directory(
     '../dataset',
     target_size=img_size,
-    batch_size=16,
     class_mode='binary',
-    seed=random_seed,
     subset='validation'
 )
 
 loss, acc = model.evaluate(training_set)
 
+img_dir = "/path/to/folder/where/prediction/images/are"
+data_path = os.path.join(img_dir, '*g')
+files = glob.glob(data_path)
+data = []
+results = []
 
-def classify(img_path):
-    img = image.load_img(img_path, target_size=(224, 224))
-    img_array = image.img_to_array(img)
+for file in files:
+    test_images = image.load_img(file, target_size=img_size)
+    test_images = image.img_to_array(test_images)
+    test_images = np.expand_dims(test_images, axis=0)
+    images = np.vstack([test_images])
+    classes = model.predict(images, batch_size=10)
+    classes = np.round(classes)
+    data.append(file)
+    results.append(classes)
 
-    img_batch = np.expand_dims(img_array, axis=0)
+for x, y in zip(data, results):
+    print(x, y)
 
-    img_preprocessed = preprocess_input(img_batch)
+L = 4, W = 4
+fig, axes = plt.subplots(L, W, figsize=(12, 12))
+axes = axes.ravel()
+for i in np.arange(0, L * W):
+    img = cv2.imread(data[i])
+    axes[i].imshow(img)
+    axes[i].set_title(results[i])
+    axes[i].set_xticks([])
+    axes[i].set_yticks([])
 
-    prediction = model.predict(img_preprocessed)
-
-    print(decode_predictions(prediction, top=3)[0])
-
-
-classify("../dataset/pred/pred20.jpg")
+fig.tight_layout()
+fig.savefig('/path/to/save/png', bbox_inches='tight')

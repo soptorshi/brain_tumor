@@ -1,0 +1,16 @@
+- python-jedi
+- python-numpy
+- python-matplotlib
+- jedi-language-server
+- python-opencv
+- python-isort
+- autopep8
+- types-six and types-requests (pip)
+- data-science-types
+- python-scikit-learn
+- tensorflow
+- python-tensorflow
+- python-keras-preprocessin
+- python-keras-application
+- pyyaml h5py
+- python-scipy

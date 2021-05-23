@@ -54,7 +54,7 @@ loss, acc = model.evaluate(training_set)
 
 def classify(img_path):
     img = image.load_img(img_path, target_size=(224, 224))
-    img_array = np.array([img_to_array(img)])
+    img_array = image.img_to_array(img)
 
     img_batch = np.expand_dims(img_array, axis=0)
 

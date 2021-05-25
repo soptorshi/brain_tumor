@@ -1,6 +1,4 @@
 import tensorflow as tf
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.preprocessing import image
@@ -49,8 +47,8 @@ testing_set = train_datagen.flow_from_directory(
 
 loss, acc = model.evaluate(training_set)
 
-img_dir = "/path/to/folder/where/prediction/images/are"
-data_path = os.path.join(img_dir, '*g')
+img_dir = "../dataset/pred/"
+data_path = os.path.join(img_dir, '*.jpg')
 files = glob.glob(data_path)
 data = []
 results = []
@@ -68,7 +66,8 @@ for file in files:
 for x, y in zip(data, results):
     print(x, y)
 
-L = 4, W = 4
+W = 4
+L = 4
 fig, axes = plt.subplots(L, W, figsize=(12, 12))
 axes = axes.ravel()
 for i in np.arange(0, L * W):
@@ -79,4 +78,4 @@ for i in np.arange(0, L * W):
     axes[i].set_yticks([])
 
 fig.tight_layout()
-fig.savefig('/path/to/save/png', bbox_inches='tight')
+fig.savefig('image.png', bbox_inches='tight')
